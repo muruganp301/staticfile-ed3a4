@@ -1,0 +1,7 @@
+{
+  "name": "Automatic Attendance System",
+  "description": "A comprehensive dashboard for managing and tracking employee attendance using facial recognition. Features include real-time attendance marking, detailed reports, user management, and face registration.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
