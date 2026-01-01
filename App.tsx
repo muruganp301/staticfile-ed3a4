@@ -5,31 +5,62 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import Attendance from './components/Attendance';
 import Reports from './components/Reports';
-import Users from './components/Users';
+import Students from './components/Students';
 import Register from './components/Register';
 import Settings from './components/Settings';
+import { sampleData } from './constants';
+import { Student, AttendanceLog } from './types';
 
-export type Section = 'dashboard' | 'attendance' | 'reports' | 'users' | 'register' | 'settings';
+export type Section = 'dashboard' | 'attendance' | 'reports' | 'students' | 'register' | 'settings';
 
 const App: React.FC = () => {
     const [activeSection, setActiveSection] = useState<Section>('dashboard');
+    const [students, setStudents] = useState<Student[]>(sampleData.students);
+    const [attendanceLog, setAttendanceLog] = useState<AttendanceLog[]>(sampleData.attendanceLog);
+    const [preselectedStudentId, setPreselectedStudentId] = useState<string | null>(null);
+
+    const navigateToRegister = (studentId: string) => {
+        setPreselectedStudentId(studentId);
+        setActiveSection('register');
+    };
 
     const renderSection = () => {
         switch (activeSection) {
             case 'dashboard':
-                return <Dashboard />;
+                return <Dashboard attendanceLog={attendanceLog} students={students} />;
             case 'attendance':
-                return <Attendance setActiveSection={setActiveSection} />;
+                return (
+                    <Attendance 
+                        setActiveSection={setActiveSection} 
+                        students={students} 
+                        attendanceLog={attendanceLog}
+                        setAttendanceLog={setAttendanceLog}
+                        setStudents={setStudents}
+                    />
+                );
             case 'reports':
-                return <Reports />;
-            case 'users':
-                return <Users />;
+                return <Reports attendanceLog={attendanceLog} />;
+            case 'students':
+                return (
+                    <Students 
+                        students={students} 
+                        setStudents={setStudents} 
+                        onRegisterFace={navigateToRegister}
+                    />
+                );
             case 'register':
-                return <Register />;
+                return (
+                    <Register 
+                        students={students} 
+                        setStudents={setStudents} 
+                        preselectedId={preselectedStudentId}
+                        clearPreselected={() => setPreselectedStudentId(null)}
+                    />
+                );
             case 'settings':
                 return <Settings />;
             default:
-                return <Dashboard />;
+                return <Dashboard attendanceLog={attendanceLog} students={students} />;
         }
     };
     
@@ -38,7 +69,7 @@ const App: React.FC = () => {
             dashboard: 'Dashboard',
             attendance: 'Mark Attendance',
             reports: 'Reports',
-            users: 'Manage Users',
+            students: 'Manage Students',
             register: 'Register Face',
             settings: 'Settings'
         };

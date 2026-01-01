@@ -61,7 +61,7 @@ const GeneralSettings: React.FC = () => (
     <form className="space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
             <FormField label="System Name">
-                <input type="text" defaultValue="AutoAttend Attendance System" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                <input type="text" defaultValue="ZX Attendance System" className="w-full border border-gray-300 rounded-md px-3 py-2" />
             </FormField>
             <FormField label="Timezone">
                  <select defaultValue="UTC-6" className="w-full border border-gray-300 rounded-md px-3 py-2">
@@ -72,10 +72,10 @@ const GeneralSettings: React.FC = () => (
                 </select>
             </FormField>
              <FormField label="Work Start Time">
-                <input type="time" defaultValue="09:00" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                <input type="time" defaultValue="10:00" className="w-full border border-gray-300 rounded-md px-3 py-2" />
             </FormField>
             <FormField label="Work End Time">
-                <input type="time" defaultValue="17:00" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                <input type="time" defaultValue="14:10" className="w-full border border-gray-300 rounded-md px-3 py-2" />
             </FormField>
         </div>
         <div className="space-y-4">

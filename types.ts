@@ -1,8 +1,9 @@
 
-export interface User {
+export interface Student {
   id: string;
   name: string;
-  department: string;
+  course: string;
+  section: string;
   faceRegistered: boolean;
   lastAttendance: string;
   status: 'Active' | 'Inactive';
@@ -19,7 +20,7 @@ export interface AttendanceLog {
 export interface DailyReport {
   id: string;
   name: string;
-  department: string;
+  course: string;
   timeIn: string;
   timeOut: string;
   hours: string;

@@ -9,6 +9,27 @@ const iconProps = {
     viewBox: "0 0 24 24",
 };
 
+export const AttendanceLogo = ({ className = "w-8 h-8", color = "currentColor" }: { className?: string, color?: string }) => (
+    <svg 
+        className={className} 
+        viewBox="0 0 100 100" 
+        fill={color} 
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        {/* User Silhouette */}
+        <circle cx="35" cy="40" r="18" />
+        <path d="M10 90 C10 65, 60 65, 60 90 L60 95 L10 95 Z" />
+        
+        {/* Clock Face */}
+        <circle cx="70" cy="45" r="22" fill="none" stroke={color} strokeWidth="5" strokeDasharray="100 20" />
+        <path d="M70 30 V45 H80" fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        
+        {/* Checkmark Badge */}
+        <circle cx="85" cy="60" r="12" fill={color} stroke="white" strokeWidth="2" />
+        <path d="M79 60 L83 64 L91 56" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
 export const HomeIcon = () => (
     <svg {...iconProps} strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a.75.75 0 011.06 0l8.954 8.955M3 11.25V21h6V15h6v6h6V11.25M12 21V12" /></svg>
 );

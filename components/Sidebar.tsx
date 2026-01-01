@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Section } from '../App';
-import { HomeIcon, CheckCircleIcon, ChartBarIcon, UsersIcon, UserPlusIcon, CogIcon, CameraIcon } from './icons';
+import { HomeIcon, CheckCircleIcon, ChartBarIcon, CogIcon, AttendanceLogo, UsersIcon, UserPlusIcon } from './icons';
 
 interface SidebarProps {
     activeSection: Section;
@@ -37,20 +37,20 @@ const NavItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
     return (
         <nav className="fixed top-0 left-0 h-full bg-gradient-to-b from-primary to-secondary text-white w-16 lg:w-64 transition-all duration-300 z-50 flex flex-col">
-            <div className="p-4 border-b border-white/10 text-center">
-                <div className="flex items-center justify-center gap-2">
-                    <CameraIcon className="w-8 h-8 text-success" />
-                    <span className="text-2xl font-bold hidden lg:inline">AutoAttend</span>
+            <div className="p-4 border-b border-white/10">
+                <div className="flex items-center justify-center lg:justify-start gap-2">
+                    <AttendanceLogo className="w-8 h-8 lg:w-10 lg:h-10 shrink-0" color="white" />
+                    <span className="text-xl lg:text-2xl font-bold hidden lg:inline tracking-tight">ZX</span>
                 </div>
-                <p className="text-xs opacity-80 mt-1 hidden lg:block">Automatic Attendance System</p>
+                <p className="text-[10px] opacity-70 mt-1 hidden lg:block uppercase tracking-widest text-center lg:text-left">Smart Attendance</p>
             </div>
 
             <ul className="mt-4 flex-grow">
                 <NavItem section="dashboard" activeSection={activeSection} setActiveSection={setActiveSection} icon={<HomeIcon />} label="Dashboard" />
                 <NavItem section="attendance" activeSection={activeSection} setActiveSection={setActiveSection} icon={<CheckCircleIcon />} label="Mark Attendance" />
-                <NavItem section="reports" activeSection={activeSection} setActiveSection={setActiveSection} icon={<ChartBarIcon />} label="Reports" />
-                <NavItem section="users" activeSection={activeSection} setActiveSection={setActiveSection} icon={<UsersIcon />} label="Manage Users" />
                 <NavItem section="register" activeSection={activeSection} setActiveSection={setActiveSection} icon={<UserPlusIcon />} label="Register Face" />
+                <NavItem section="students" activeSection={activeSection} setActiveSection={setActiveSection} icon={<UsersIcon />} label="Manage Students" />
+                <NavItem section="reports" activeSection={activeSection} setActiveSection={setActiveSection} icon={<ChartBarIcon />} label="Reports" />
                 <NavItem section="settings" activeSection={activeSection} setActiveSection={setActiveSection} icon={<CogIcon />} label="Settings" />
             </ul>
         </nav>
