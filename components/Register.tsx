@@ -19,6 +19,7 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
     const [isComplete, setIsComplete] = useState(false);
     const [showResetConfirm, setShowResetConfirm] = useState(false);
     const [showPrivacyConfirm, setShowPrivacyConfirm] = useState(false);
+    const [showReRegisterConfirm, setShowReRegisterConfirm] = useState(false);
     
     const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
@@ -68,10 +69,24 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
                         videoRef.current.srcObject = stream;
                         await videoRef.current.play();
                     }
-                } catch (err) {
+                } catch (err: any) {
                     console.error("Camera access error in Register:", err);
                     setCameraActive(false);
-                    alert("Unable to access camera. Please check permissions and ensure your device is not being used by another application.");
+                    
+                    let errorMessage = "Unable to access camera. ";
+                    
+                    // Specific error handling for more professional UX
+                    if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                        errorMessage += "The camera is currently being used by another application (like Zoom or Teams). Please close other apps using the camera and try again.";
+                    } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        errorMessage += "Camera permissions were denied. Please enable camera access in your browser settings to continue registration.";
+                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        errorMessage += "No camera device was detected on your system. Please check your hardware connection.";
+                    } else {
+                        errorMessage += "Please check your permissions and ensure your device hardware is connected properly.";
+                    }
+                    
+                    alert(errorMessage);
                 }
             }, 150);
         } catch (err) {
@@ -79,19 +94,31 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
         }
     };
 
-    const studentsToRegister = useMemo(() => students.filter(u => !u.faceRegistered), [students]);
+    const currentStudentDetails = useMemo(() => 
+        students.find(s => s.id === selectedStudent), 
+    [students, selectedStudent]);
 
     const handleStartCameraToggle = () => {
         if (!selectedStudent) {
             alert('Please select a student first.');
             return;
         }
+        
         if (cameraActive) {
             stopCamera();
             handleReset();
         } else {
-            setShowPrivacyConfirm(true);
+            if (currentStudentDetails?.faceRegistered) {
+                setShowReRegisterConfirm(true);
+            } else {
+                setShowPrivacyConfirm(true);
+            }
         }
+    };
+
+    const confirmReRegister = () => {
+        setShowReRegisterConfirm(false);
+        setShowPrivacyConfirm(true);
     };
 
     const confirmStartCamera = () => {
@@ -148,18 +175,30 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Select Student</label>
                     <select 
                         value={selectedStudent} 
-                        onChange={e => setSelectedStudent(e.target.value)}
+                        onChange={e => {
+                            setSelectedStudent(e.target.value);
+                            handleReset();
+                        }}
                         className="w-full bg-[#3a3a3a] text-white border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#4c6ef5] outline-none transition-all"
                     >
                         <option value="">Choose student...</option>
-                        {studentsToRegister.map(student => (
-                            <option key={student.id} value={student.id}>{student.name} ({student.id})</option>
+                        {students.map(student => (
+                            <option key={student.id} value={student.id}>
+                                {student.name} ({student.id}) {student.faceRegistered ? '✓' : ''}
+                            </option>
                         ))}
                     </select>
                 </div>
                 <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Student ID</label>
-                    <input type="text" value={selectedStudent} readOnly placeholder="No selection" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-400 font-medium"/>
+                    <div className="flex items-center gap-2">
+                        <input type="text" value={selectedStudent} readOnly placeholder="No selection" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-400 font-medium"/>
+                        {currentStudentDetails?.faceRegistered && (
+                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap">
+                                REGISTERED
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -211,12 +250,12 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
                         <button 
                             onClick={handleStartCameraToggle} 
                             disabled={!selectedStudent || isComplete} 
-                            className="bg-[#4c6ef5] text-white px-8 py-4 rounded-2xl font-bold text-lg disabled:opacity-50 transition-all hover:bg-[#3b5bdb] hover:-translate-y-1 shadow-xl shadow-blue-500/20 flex items-center gap-2"
+                            className={`${currentStudentDetails?.faceRegistered ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' : 'bg-[#4c6ef5] hover:bg-[#3b5bdb] shadow-blue-500/20'} text-white px-8 py-4 rounded-2xl font-bold text-lg disabled:opacity-50 transition-all hover:-translate-y-1 shadow-xl flex items-center gap-2`}
                         >
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            Initiate Face Registration
+                            {currentStudentDetails?.faceRegistered ? 'Re-register Face' : 'Initiate Face Registration'}
                         </button>
                     ) : (
                         <>
@@ -233,6 +272,39 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
                     )}
                 </div>
             </div>
+
+            {/* Re-registration Confirmation Modal */}
+            {showReRegisterConfirm && (
+                <div className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
+                    <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full p-10 animate-in zoom-in duration-200">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="p-3 bg-amber-50 rounded-2xl">
+                                <svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-bold text-[#1e293b]">Re-register Face?</h3>
+                        </div>
+                        <p className="text-slate-500 leading-relaxed mb-10">
+                            Student <strong>{currentStudentDetails?.name}</strong> already has a face profile. Re-registering will overwrite their existing biometric data.
+                        </p>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => setShowReRegisterConfirm(false)} 
+                                className="flex-1 py-4 border border-slate-200 rounded-2xl text-slate-400 font-bold hover:bg-slate-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmReRegister} 
+                                className="flex-1 py-4 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 transition-shadow shadow-lg shadow-amber-500/20"
+                            >
+                                Overwrite
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Privacy & Data Usage Confirmation Dialog */}
             {showPrivacyConfirm && (
@@ -273,7 +345,7 @@ const Register: React.FC<RegisterProps> = ({ students, setStudents, preselectedI
 
             {showResetConfirm && (
                 <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
-                    <div className="bg-white rounded-[32px] shadow-2xl max-w-sm w-full p-8 animate-in zoom-in duration-200">
+                    <div className="bg-white rounded-[32px] shadow-2xl max-sm w-full p-8 animate-in zoom-in duration-200">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="p-3 bg-red-50 rounded-2xl text-red-500">
                                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
